@@ -67,10 +67,13 @@ def update_input_container(selected_statistics):
 
 #Callback for plotting
 # Define the callback function to update the input container based on the selected statistics
-@app.callback(
-    Output(component_id='dropdown-statistics', component_property='children'),
-    [Input(component_id='select-year', component_property='value'), Input(component_id='dropdown-statistics', component_property='value')])
 
+@app.callback(
+
+    Output(component_id='output-container', component_property='children'),
+
+    [Input(component_id='dropdown-statistics', component_property='value'),
+     Input(component_id='select-year', component_property='value') ])
 
 def update_output_container(selected_statistics, year):
     if selected_statistics == 'Recession Period Statistics':
@@ -106,25 +109,30 @@ def update_output_container(selected_statistics, year):
                 title="Total Advertising Expenditure by Vehicle Type"))
 
 # Plot 4 bar chart for the effect of unemployment rate on vehicle type and sales
-        emp_rec= recession_data.groupby('Vehicle_Type')['Unemployment_Rate'].mean().reset_index()
-        R_chart4 = dcc.Graph(figure=px.bar(emp_rec, 
-                x='Vehicle_Type',
-                y='Unemployment_Rate',
-                title="Total Unemployment Rate by Vehicle Type"))
+        unemp_data= recession_data.groupby(['Vehicle_Type', 'unemployment_rate'])['Automobile_Sales'].mean().reset_index()
+        R_chart4 = dcc.Graph(
+            figure=px.bar(
+                unemp_data,
+                x='unemployment_rate',
+                y='Automobile_Sales',
+                color='Vehicle_Type',
+                labels={'unemployment_rate': 'Unemployment Rate', 'Automobile_Sales': 'Average Automobile Sales'},
+                title="Effect of Unemployment Rate on Sales of various Vehicle Types"))
 
 
         return [
-            html.Div(className='chart-item', children=[html.Div(children=R_chart1),html.Div(children=R_chart1)],style={}),
+            #html.Div(className='chart-item', children=[html.Div(children=R_chart1),html.Div(children=R_chart1)],style={}),
             html.Div(className='chart-item', children=[html.Div(children=R_chart2),html.Div(children=R_chart2)],style={}),
-            html.Div(className='chart-item', children=[html.Div(children=R_chart3),html.Div(children=R_chart3)],style={}),
+            #html.Div(className='chart-item', children=[html.Div(children=R_chart3),html.Div(children=R_chart3)],style={}),
             html.Div(className='chart-item', children=[html.Div(children=R_chart4),html.Div(children=R_chart4)],style={})
             ]
 
 # TASK 2.6: Create and display graphs for Yearly Report Statistics
  # Yearly Statistic Report Plots                             
+
     elif (input_year and selected_statistics=='Yearly Statistics') :
-        yearly_data = data[data['Year'] == value]
-                              
+        yearly_data = data[data['Year'] == input_year]
+        
 #TASK 2.5: Creating Graphs Yearly data
                               
 #plot 1 Yearly Automobile sales using line chart for the whole period.
@@ -135,14 +143,12 @@ def update_output_container(selected_statistics, year):
                 title="Yearly Sales"))
             
 # Plot 2 Total Monthly Automobile sales using line chart.
-        mas = yearly_data.groupby('Month')['Automobile_Sales'].sum().reset_index()
-        Y_chart2 = dcc.Graph(figure=px.line(mas, 
-                x='Month',
-                y='Automobile_Sales',
-                title="Monthly Sales"))
+        Y_chart2 = dcc.Graph(figure=px.line(yearly_data,x='Month',
+                    y='Automobile_Sales',title="Monthly Automobile Sales for the year {}".format(input_year)))
 
             # Plot bar chart for average number of vehicles sold during the given year
         avr_vdata=yearly_data.groupby('Vehicle_Type')['Automobile_Sales'].mean().reset_index()
+        print(avr_vdata)
         Y_chart3 = dcc.Graph( figure=px.bar(avr_vdata, 
                 x='Vehicle_Type',
                 y='Automobile_Sales',
@@ -150,17 +156,18 @@ def update_output_container(selected_statistics, year):
 
             # Total Advertisement Expenditure for each vehicle using pie chart
         exp_data=yearly_data.groupby('Vehicle_Type')['Advertising_Expenditure'].sum().reset_index()
-        Y_chart4 = dcc.Graph(figure=px.pie(exp_data, 
-                x='Vehicle_Type',
-                y='Advertising_Expenditure',
-                title="Total Advertising Expenditure by Vehicle Type"))
+        Y_chart4 = dcc.Graph(figure=px.pie(exp_data,
+                                           values='Advertising_Expenditure',
+                                           names='Vehicle_Type',
+                                           title='Total Advertising Expenditure for Vehicle Type in the year {}'.format(input_year)
+                    ))
 
 
 #TASK 2.6: Returning the graphs for displaying Yearly data
         return [
-                html.Div(className='chart-item', children=[html.Div(children = Y_chart1),html.Div(children = Y_chart1)],style={}),
+                #html.Div(className='chart-item', children=[html.Div(children = Y_chart1),html.Div(children = Y_chart1)],style={}),
                 html.Div(className='chart-item', children=[html.Div(children = Y_chart2),html.Div(children = Y_chart2)],style={}),
-                html.Div(className='chart-item', children=[html.Div(children = Y_chart3),html.Div(children = Y_chart3)],style={}),
+                #html.Div(className='chart-item', children=[html.Div(children = Y_chart3),html.Div(children = Y_chart3)],style={}),
                 html.Div(className='chart-item', children=[html.Div(children = Y_chart4),html.Div(children = Y_chart4)],style={})
                 ]
         
