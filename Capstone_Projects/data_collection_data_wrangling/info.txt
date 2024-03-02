@@ -1,0 +1,2 @@
+For the capstone project, we are looking to understand launch outcomes of Falcon 9. First step in the process involves data collection through API or Web Scraping. 
+Once we have collected the data, next step in the process involves data wrangling, cleaning up NaN or coming up with flags (success/failure) for future feature engineering purposes. 
